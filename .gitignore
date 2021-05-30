@@ -1,0 +1,4 @@
+*.pages
+*.txt
+*.log
+settings.py
