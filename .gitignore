@@ -1,4 +1,5 @@
 *.pages
-*.txt
 *.log
 settings.py
+.ipynb_checkpoints
+*.ipynb

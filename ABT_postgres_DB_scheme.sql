@@ -1,7 +1,7 @@
 CREATE TABLE "issues" (
 	"id" serial NOT NULL,
-	"issue_key" varchar(255) NOT NULL UNIQUE,
-	"issue_type_id" integer NOT NULL,
+	"key" varchar(255) NOT NULL UNIQUE,
+	"type_id" integer NOT NULL,
 	"summary" TEXT NOT NULL,
 	"status_id" integer NOT NULL,
 	"priority_id" integer NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE "issues" (
 
 CREATE TABLE "Status" (
 	"id" serial NOT NULL,
-	"status_name" varchar(255) NOT NULL UNIQUE,
+	"name" varchar(255) NOT NULL UNIQUE,
 	CONSTRAINT "Status_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
@@ -30,7 +30,7 @@ CREATE TABLE "Status" (
 
 CREATE TABLE "Priority" (
 	"id" serial NOT NULL,
-	"priority_name" varchar(255) NOT NULL UNIQUE,
+	"name" varchar(255) NOT NULL UNIQUE,
 	CONSTRAINT "Priority_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
@@ -40,7 +40,7 @@ CREATE TABLE "Priority" (
 
 CREATE TABLE "Resolution" (
 	"id" serial NOT NULL,
-	"resolution_name" varchar(255) NOT NULL UNIQUE,
+	"name" varchar(255) NOT NULL UNIQUE,
 	CONSTRAINT "Resolution_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
@@ -61,22 +61,22 @@ CREATE TABLE "Comments" (
 
 
 
-CREATE TABLE "AV_issues" (
+CREATE TABLE "Affect_Version" (
 	"id" serial NOT NULL,
 	"issue_id" integer NOT NULL,
-	"server_version" VARCHAR(255) NOT NULL,
-	CONSTRAINT "AV_issues_pk" PRIMARY KEY ("id")
+	"version" VARCHAR(255) NOT NULL,
+	CONSTRAINT "Affect_Version_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
 );
 
 
 
-CREATE TABLE "FV_issue" (
+CREATE TABLE "Fix_Version" (
 	"id" serial NOT NULL,
 	"issue_id" integer NOT NULL,
-	"server_version" VARCHAR(255) NOT NULL,
-	CONSTRAINT "FV_issue_pk" PRIMARY KEY ("id")
+	"version" VARCHAR(255) NOT NULL,
+	CONSTRAINT "Fix_Version_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
 );
@@ -87,7 +87,7 @@ CREATE TABLE "Issue_links" (
 	"id" serial NOT NULL,
 	"child_issue" integer NOT NULL,
 	"parent_issue" integer NOT NULL,
-	"link_type_id" integer NOT NULL,
+	"type_id" integer NOT NULL,
 	CONSTRAINT "Issue_links_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
@@ -97,7 +97,7 @@ CREATE TABLE "Issue_links" (
 
 CREATE TABLE "Link_type" (
 	"id" serial NOT NULL,
-	"link_type_name" varchar(255) NOT NULL UNIQUE,
+	"name" varchar(255) NOT NULL UNIQUE,
 	CONSTRAINT "Link_type_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
@@ -107,7 +107,7 @@ CREATE TABLE "Link_type" (
 
 CREATE TABLE "Type" (
 	"id" serial NOT NULL,
-	"Issue_type_name" varchar(255) NOT NULL UNIQUE,
+	"name" varchar(255) NOT NULL UNIQUE,
 	CONSTRAINT "Type_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
@@ -115,7 +115,7 @@ CREATE TABLE "Type" (
 
 
 
-ALTER TABLE "issues" ADD CONSTRAINT "issues_fk0" FOREIGN KEY ("issue_type_id") REFERENCES "Type"("id");
+ALTER TABLE "issues" ADD CONSTRAINT "issues_fk0" FOREIGN KEY ("type_id") REFERENCES "Type"("id");
 ALTER TABLE "issues" ADD CONSTRAINT "issues_fk1" FOREIGN KEY ("status_id") REFERENCES "Status"("id");
 ALTER TABLE "issues" ADD CONSTRAINT "issues_fk2" FOREIGN KEY ("priority_id") REFERENCES "Priority"("id");
 ALTER TABLE "issues" ADD CONSTRAINT "issues_fk3" FOREIGN KEY ("resolution_id") REFERENCES "Resolution"("id");
@@ -125,13 +125,13 @@ ALTER TABLE "issues" ADD CONSTRAINT "issues_fk3" FOREIGN KEY ("resolution_id") R
 
 ALTER TABLE "Comments" ADD CONSTRAINT "Comments_fk0" FOREIGN KEY ("issue_id") REFERENCES "issues"("id");
 
-ALTER TABLE "AV_issues" ADD CONSTRAINT "AV_issues_fk0" FOREIGN KEY ("issue_id") REFERENCES "issues"("id");
+ALTER TABLE "Affect_Version" ADD CONSTRAINT "Affect_Version_fk0" FOREIGN KEY ("issue_id") REFERENCES "issues"("id");
 
-ALTER TABLE "FV_issue" ADD CONSTRAINT "FV_issue_fk0" FOREIGN KEY ("issue_id") REFERENCES "issues"("id");
+ALTER TABLE "Fix_Version" ADD CONSTRAINT "Fix_Version_fk0" FOREIGN KEY ("issue_id") REFERENCES "issues"("id");
 
 ALTER TABLE "Issue_links" ADD CONSTRAINT "Issue_links_fk0" FOREIGN KEY ("child_issue") REFERENCES "issues"("id");
 ALTER TABLE "Issue_links" ADD CONSTRAINT "Issue_links_fk1" FOREIGN KEY ("parent_issue") REFERENCES "issues"("id");
-ALTER TABLE "Issue_links" ADD CONSTRAINT "Issue_links_fk2" FOREIGN KEY ("link_type_id") REFERENCES "Link_type"("id");
+ALTER TABLE "Issue_links" ADD CONSTRAINT "Issue_links_fk2" FOREIGN KEY ("type_id") REFERENCES "Link_type"("id");
 
 
 
