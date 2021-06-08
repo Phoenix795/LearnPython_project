@@ -1,58 +1,56 @@
 from jira import JIRA
 from datetime import datetime
 
-jira = JIRA(server="https://jira.atlassian.com")
+SERVER_NAME = "https://jira.atlassian.com"
+jira = JIRA(server=SERVER_NAME)
 
 
-#getting all basic data from issue and return as a dict
-def get_issuedata(issuekey):
+def get_issue_data(issuekey):
+    """Getting all basic data from issue and return as a dict."""
     issue = jira.issue(issuekey)
-    issuedata = dict()
-    issuedata['key'] = issuekey
-    issuedata['type'] = issue.fields.issuetype
-    issuedata['summary'] = issue.fields.summary
-    issuedata['status'] = issue.fields.status
-    issuedata['priority'] = issue.fields.priority
-    issuedata['resolution'] = issue.fields.resolution
-    issuedata['description'] = issue.fields.description
-    issuedata['votes'] = issue.fields.votes
-    issuedata['watchers'] = jira.watchers(issue).watchCount
-    issuedata['created'] = datetime.strptime(issue.fields.created, '%Y-%m-%dT%H:%M:%S.%f%z').date()
-    issuedata['updated'] = datetime.strptime(issue.fields.updated, '%Y-%m-%dT%H:%M:%S.%f%z').date()
+    issuedata = {
+        'key': issuekey,
+        'type': issue.fields.issuetype,
+        'summary': issue.fields.summary,
+        'status': issue.fields.status,
+        'priority': issue.fields.priority,
+        'resolution': issue.fields.resolution,
+        'description': issue.fields.description,
+        'votes': issue.fields.votes,
+        'watchers': jira.watchers(issue).watchCount,
+        'created': datetime.strptime(issue.fields.created, '%Y-%m-%dT%H:%M:%S.%f%z').date(),
+        'updated': datetime.strptime(issue.fields.updated, '%Y-%m-%dT%H:%M:%S.%f%z').date()
+    }
     return issuedata
 
 
-#getting all links from issue and return as a list of dicts
-def get_issuelinks(issuekey):
+def get_issue_links(issuekey):
+    """Getting all links from issue and return as a list of dicts."""
     issue = jira.issue(issuekey)
     links = issue.fields.issuelinks
-    issuelinks = []
+    issue_links = []
     for link in links:
-        linktype = link.type
-        outwardIssue = link.outwardIssue
-        issuelinks.append({'linktype' : linktype, 'outwardIssue' : outwardIssue})
-    return issuelinks
+        link_type = link.type
+        outward_issue = link.outwardIssue
+        issue_links.append({'linktype' : link_type, 'outwardIssue' : outward_issue})
+    return issue_links
 
 
-#getting all comments from issue and return as a list of dicts
-def get_issuecomments(issuekey):
+def get_issue_comments(issuekey):
+    """Getting all comments from issue and return as a list of dicts."""
     issue = jira.issue(issuekey)
-    issuecomments = []
+    issue_comments = []
     for comment in issue.fields.comment.comments:
         comment_content = comment.body
         comment_author = comment.author
         comment_date = datetime.strptime(comment.created, '%Y-%m-%dT%H:%M:%S.%f%z').date()
-        issuecomments.append({'body' : comment_content, 'author' : comment_author, 'date' : comment_date})
-    return issuecomments
+        issue_comments.append({'body' : comment_content, 'author' : comment_author, 'date' : comment_date})
+    return issue_comments
 
 
-#getting all versions from issue and return as a dict of lists
-def get_issueversion(issuekey):
+def get_issue_version(issuekey):
+    """Getting all versions from issue and return max value."""
     issue = jira.issue(issuekey)
-    fixedversions = []
-    affectsversions = []
-    for fversion in issue.fields.fixVersions:
-        fixedversions.append(fversion.name)
-    for aversion in issue.fields.versions:
-        affectsversions.append(aversion.name)
-    return {'fixed' : fixedversions, 'affected' : affectsversions}
+    affects_versions = [fversion.name for fversion in issue.fields.fixVersions]
+    fixed_versions = [aversion.name for aversion in issue.fields.versions]
+    return {'fixed' : max(fixed_versions), 'affected' : max(affects_versions)}
