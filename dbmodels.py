@@ -43,7 +43,7 @@ class Resolution(Base):
         return f"Resolution name {self.id}, {self.name}"
 
 
-class Link_type(Base):
+class LinkType(Base):
     __tablename__ = "link_type"
 
     id = Column(Integer, primary_key=True)
@@ -88,7 +88,7 @@ class Comment(Base):
         return f"Comment id {self.id}"
 
 
-class Issue_links(Base):
+class IssueLinks(Base):
     __tablename__ = "issue_link"
 
     id = Column(Integer, primary_key=True)
