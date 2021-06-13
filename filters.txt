@@ -1,0 +1,16 @@
+project = JRASERVER AND issuetype = Bug AND status = Closed AND priority = Low and component is not EMPTY and fixVersion is EMPTY
+project = JRASERVER AND issuetype = Bug AND status = Closed AND priority = Low and component is not EMPTY and fixVersion is not EMPTY
+project = JRASERVER AND issuetype = Bug AND status = Closed AND priority = Low and component is EMPTY
+project = JRASERVER AND issuetype = Bug AND status = Closed AND priority = Medium AND component is EMPTY
+project = JRASERVER AND issuetype = Bug AND status = Closed AND priority = Medium AND component is not EMPTY
+project = JRASERVER AND issuetype = Bug AND status = Closed AND priority in (Highest, High)
+project = JRASERVER AND issuetype = Bug AND status = "Needs Triage"
+project = JRASERVER AND issuetype = Bug AND status in ("In Progress", "In Review", "Gathering Impact", "Long Term Backlog", "Short Term Backlog", "Waiting for Release")
+project = JRASERVER AND issuetype = Suggestion AND status = Closed AND labels is EMPTY AND component is not EMPTY
+project = JRASERVER AND issuetype = Suggestion AND status = Closed AND labels is EMPTY AND component is EMPTY
+project = JRASERVER AND issuetype = Suggestion AND status = Closed AND labels is not EMPTY AND component is EMPTY
+project = JRASERVER AND issuetype = Suggestion AND status = Closed AND labels is not EMPTY AND component is not EMPTY
+project = JRASERVER AND issuetype = Suggestion AND status = "Gathering Interest" and labels is EMPTY
+project = JRASERVER AND issuetype = Suggestion AND status = "Gathering Interest" and labels is not EMPTY
+project = JRASERVER AND issuetype = Suggestion AND status in ("In Progress", Reviewing, "Under Consideration", "Future Consideration", "Not Being Considered", "Waiting for Release")
+project = JRASERVER AND issuetype = "Public Security Vulnerability"
