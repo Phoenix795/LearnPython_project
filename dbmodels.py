@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Date, VARCHAR, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql.expression import false
 from atlassiandb import Base, engine
 
@@ -58,11 +59,20 @@ class Issue(Base):
 
     id = Column(Integer, primary_key=True)
     key = Column(VARCHAR(255),unique=True, nullable=False)
-    type_id = Column(Integer, ForeignKey('type.id'), nullable=False)
     summary = Column(String(255), nullable=False)
+
+    type_id = Column(Integer, ForeignKey('type.id'), nullable=False)
+    type = relationship('Type', backref='issues', index=True)
+    
     status_id = Column(Integer, ForeignKey('status.id'), nullable=False)
+    status = relationship('Status', backref='issues', index=True)
+    
     priority_id = Column(Integer, ForeignKey('priority.id'))
+    priority = relationship('Priority', backref='issues', index=True)
+
     resolution_id = Column(Integer, ForeignKey('resolution.id'))
+    resolution = relationship('Resolution', backref='issues', index=True)
+
     description = Column(String(10000))
     votes_quantity = Column(Integer,default=0)
     watchers_quantity = Column(Integer,default=0)
@@ -75,11 +85,14 @@ class Issue(Base):
         return f"Issue Key {self.id}, {self.key}"
 
 
-class Comment(Base):
+class Comments(Base):
     __tablename__ = "comment"
 
     id = Column(Integer, primary_key=True)
-    issue_id = Column(Integer, ForeignKey('issue.id'), nullable=False)
+    
+    issue_id = Column(Integer, ForeignKey('issue.id'), nullable=False, index=True)
+    issue = relationship('Issue', backref='comments', lazy=True)
+    
     content = Column(String(500))
     date_created = Column(Date, nullable=False)
     creator = Column(String(255))
@@ -88,15 +101,21 @@ class Comment(Base):
         return f"Comment id {self.id}"
 
 
-class IssueLinks(Base):
+class IssueLink(Base):
     __tablename__ = "issue_link"
 
     id = Column(Integer, primary_key=True)
-    child_issue= Column(Integer, ForeignKey('issue.id'), nullable=False)
-    parent_issue = Column(Integer, ForeignKey('issue.id'), nullable=False)
-    type_id = Column(Integer, ForeignKey('link_type.id'), nullable=False)
 
-    def __repr__(self) -> str:
+    child_issue_id = Column(Integer, ForeignKey('issue.id'), nullable=False, index=True, lazy=True)
+    child_issue = relationship('Issue', backref='issue_links', lazy=True)
+
+    parent_issue_id = Column(Integer, ForeignKey('issue.id'), nullable=False, index=True, lazy=True)
+    parent_issue = relationship('Issue', backref='issue_links', lazy=True)
+
+    type_id = Column(Integer, ForeignKey('link_type.id'), nullable=False)
+    type = relationship('LinkType', backref='issue_links')
+
+    def __repr__(self) -> str: 
         return f"Issue_link id {self.id}" 
 
 
