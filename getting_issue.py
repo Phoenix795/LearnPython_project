@@ -79,7 +79,7 @@ def get_issue_version(issue):
 
 
 def getting_issues_by_filter(jql):
-    """Getting all issue keys from jql filter and return as a list."""
+    """Getting all issues from jql filter and return their data as a list."""
     issues = [ get_issue_data(issue) for issue in jira.search_issues(f'{jql}', maxResults=False, fields=FIELDS)]
     return issues
 
