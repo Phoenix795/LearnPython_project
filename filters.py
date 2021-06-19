@@ -15,9 +15,9 @@ S_GI_NEL = 'project = JRASERVER AND issuetype = Suggestion AND status = "Gatheri
 S_IN_OTHER_S = 'project = JRASERVER AND issuetype = Suggestion AND status in ("In Progress", Reviewing, "Under Consideration", "Future Consideration", "Not Being Considered", "Waiting for Release")'
 ALL_VULNARAB ='project = JRASERVER AND issuetype = "Public Security Vulnerability"'
 
-ALL_FILTERS = [
-                B_CLSD_LOW_NEC_EFV, B_CLSD_LOW_NEC_NEFV, B_CLSD_LOW_NEC_EFV, B_CLSD_LOW_EC, 
+ALL_FILTERS = [ 
+                B_CLSD_LOW_NEC_EFV, B_CLSD_LOW_NEC_NEFV, B_CLSD_LOW_EC, 
                 B_CLSD_MED_EC, B_CLSD_MED_NEC, B_CLSD_HIGH, B_NT, B_IN_OTHER_S,
                 S_CLSD_EL_NEC, S_CLSD_EL_EC, S_CLSD_NEL_EC, S_CLSD_NEL_NEL,
                 S_GI_EL, S_GI_NEL, S_IN_OTHER_S, ALL_VULNARAB
-            ]
+                ]

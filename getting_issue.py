@@ -22,6 +22,13 @@ def multi_getattr(obj, attr, default=None):
     return obj
 
 
+def get_date_from_field(issue, attributes):
+    value = multi_getattr(issue, attributes, 'None')
+    if isinstance(value, str):
+        return value
+    return datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f%z').date()
+
+
 def get_issue_data(issue):
     """Getting all basic data from issue and return as a dict."""
     issuedata = {
@@ -34,9 +41,9 @@ def get_issue_data(issue):
         'description': multi_getattr(issue, 'fields.description', 'None'),
         'votes': issue.fields.votes.votes,
         'watchers': jira.watchers(issue).watchCount,
-        'created': datetime.strptime(issue.fields.created, '%Y-%m-%dT%H:%M:%S.%f%z').date(),
-        'updated': datetime.strptime(issue.fields.updated, '%Y-%m-%dT%H:%M:%S.%f%z').date(),
-        'resolved': datetime.strptime(issue.fields.resolutiondate, '%Y-%m-%dT%H:%M:%S.%f%z').date() if issue.fields.resolutiondate != None else 'None',
+        'created': get_date_from_field(issue,'fields.created'),
+        'updated': get_date_from_field(issue, 'fields.updated'),
+        'resolved': get_date_from_field(issue, 'fields.resolutiondate'),
         'comments': get_issue_comments(issue),
         'links': get_issue_links(issue),
         'versions': get_issue_version(issue)
