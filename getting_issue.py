@@ -10,6 +10,7 @@ FIELDS = 'summary,issuetype,status,priority,resolution,description,\
 
 
 def multi_getattr(obj, attr, default=None):
+    """Applying several attributes to one object and return default value if attribur does not exist."""
     attributes = attr.split(".")
     for i in attributes:
         try:
@@ -23,6 +24,7 @@ def multi_getattr(obj, attr, default=None):
 
 
 def get_date_from_field(issue, attributes):
+    """Getting date data from issue if exist and return as a date object."""
     value = multi_getattr(issue, attributes, 'None')
     if isinstance(value, str):
         return value
