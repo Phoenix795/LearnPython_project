@@ -62,16 +62,16 @@ class Issue(Base):
     summary = Column(String(255), nullable=False)
 
     type_id = Column(Integer, ForeignKey('type.id'), nullable=False)
-    type = relationship('Type', backref='issues', index=True)
+    type = relationship('Type', backref='issues')
     
     status_id = Column(Integer, ForeignKey('status.id'), nullable=False)
-    status = relationship('Status', backref='issues', index=True)
+    status = relationship('Status', backref='issues')
     
     priority_id = Column(Integer, ForeignKey('priority.id'))
-    priority = relationship('Priority', backref='issues', index=True)
+    priority = relationship('Priority', backref='issues')
 
     resolution_id = Column(Integer, ForeignKey('resolution.id'))
-    resolution = relationship('Resolution', backref='issues', index=True)
+    resolution = relationship('Resolution', backref='issues')
 
     description = Column(String(10000))
     votes_quantity = Column(Integer,default=0)
@@ -106,10 +106,10 @@ class IssueLink(Base):
 
     id = Column(Integer, primary_key=True)
 
-    child_issue_id = Column(Integer, ForeignKey('issue.id'), nullable=False, index=True, lazy=True)
+    child_issue_id = Column(Integer, ForeignKey('issue.id'), nullable=False, index=True)
     child_issue = relationship('Issue', backref='issue_links', lazy=True)
 
-    parent_issue_id = Column(Integer, ForeignKey('issue.id'), nullable=False, index=True, lazy=True)
+    parent_issue_id = Column(Integer, ForeignKey('issue.id'), nullable=False, index=True)
     parent_issue = relationship('Issue', backref='issue_links', lazy=True)
 
     type_id = Column(Integer, ForeignKey('link_type.id'), nullable=False)
