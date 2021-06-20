@@ -78,8 +78,9 @@ class Issue(Base):
     watchers_quantity = Column(Integer,default=0)
     fixed_version = Column(String(255))
     affected_version = Column(String(255))
-    created_date = Column(Date, nullable=false)
-    updated_date = Column(Date, nullable=false)
+    created_date = Column(Date, nullable=False)
+    updated_date = Column(Date)
+    resolved_date = Column(Date)
 
     def __repr__(self) -> str:
         return f"Issue Key {self.id}, {self.key}"
