@@ -86,7 +86,7 @@ class Issue(Base):
         return f"Issue Key {self.id}, {self.key}"
 
 
-class Comments(Base):
+class Comment(Base):
     __tablename__ = "comment"
 
     id = Column(Integer, primary_key=True)
