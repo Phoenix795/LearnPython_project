@@ -26,8 +26,8 @@ def nested_gettatr(obj, attr, default=None):
 def get_date_from_field(issue, attributes):
     """Getting date data from issue if exist and return as a date object."""
     value = nested_gettatr(issue, attributes, 'None')
-    if isinstance(value, str):
-        return value
+    if value == 'None':
+        return None
     return datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f%z').date()
 
 
