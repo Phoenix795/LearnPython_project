@@ -40,7 +40,7 @@ def get_issue_data(issue):
         'status': issue.fields.status.name,
         'priority': nested_gettatr(issue, 'fields.priority.name','None'),
         'resolution': nested_gettatr(issue, 'fields.resolution.name','None'),
-        'description': nested_gettatr(issue, 'fields.description', 'None'),
+        'description': nested_gettatr(issue, 'fields.description', 'None')[0:10000],
         'votes': issue.fields.votes.votes,
         'watchers': jira.watchers(issue).watchCount,
         'created': get_date_from_field(issue,'fields.created'),
