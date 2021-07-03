@@ -1,7 +1,12 @@
+import logging
 from atlassiandb import db_session
 from dbmodels import Type, Status, Priority, Resolution, Issue
 import getting_issue
+import filters as fl
 
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO,
+                    filename='writing_issue.log')
 
 def get_or_create(model, name):
     """Load new value if it already exists only return object"""
@@ -37,7 +42,14 @@ def upload_issues(issue):
         )
     db_session.add(loaded_issue)
     db_session.commit()
+    
+
 
 if __name__ == "__main__":
-    for issue in getting_issue.get_issues_by_filter('project in (JSWSERVER, JRASERVER) AND issuetype in (Bug, "Public Security Vulnerability", Suggestion) AND created >= 2021-03-01 AND created <= 2021-03-10'):
-        upload_issues(issue)
+    logging.info("Process started!")
+    for jql in fl.ALL_FILTERS:
+        print(jql)
+        for issue in getting_issue.get_issues_by_filter(jql):
+            upload_issues(issue)
+            logging.info(f"{issue['key']} was written into database!")
+    logging.info("Process ended!")

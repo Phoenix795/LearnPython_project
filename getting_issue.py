@@ -2,11 +2,30 @@ from jira import JIRA
 from datetime import datetime
 import settings
 import filters as fl
+import logging
+import re
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO,
+                    filename='writing_issue.log')
 
 jira = JIRA(server=settings.SERVER_NAME)
 
 FIELDS = 'summary,issuetype,status,priority,resolution,description,\
         votes,created,updated,issuelinks,comment,fixVersions,versions'
+
+
+def demoji(text):
+	emoji_pattern = re.compile("["
+		u"\U0001F600-\U0001F64F"  # emoticons
+        u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+        u"\U0001F680-\U0001F6FF"  # transport & map symbols
+        u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+        u"\U00002702-\U000027B0"
+        u"\U000024C2-\U0001F251"
+        u"\U00010000-\U0010ffff"
+	                           "]+", flags=re.UNICODE)
+	return(emoji_pattern.sub(r'', text))
 
 
 def nested_gettatr(obj, attr, default=None):
@@ -31,16 +50,28 @@ def get_date_from_field(issue, attributes):
     return datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f%z').date()
 
 
+def limit_description_size(issue):
+    description = issue.fields.description
+    if description == None:
+        return 'None'
+    else:
+        description = demoji(description)
+    if len(description) > 10000:
+        return description[1:10000]
+    return description
+
+
 def get_issue_data(issue):
     """Getting all basic data from issue and return as a dict."""
+    logging.info(f"Start reading {issue.key}!")
     issuedata = {
         'key': issue.key,
         'type': issue.fields.issuetype.name,
-        'summary': issue.fields.summary,
+        'summary': demoji(issue.fields.summary),
         'status': issue.fields.status.name,
         'priority': nested_gettatr(issue, 'fields.priority.name','None'),
         'resolution': nested_gettatr(issue, 'fields.resolution.name','None'),
-        'description': nested_gettatr(issue, 'fields.description', 'None')[0:10000],
+        'description': limit_description_size(issue),
         'votes': issue.fields.votes.votes,
         'watchers': jira.watchers(issue).watchCount,
         'created': get_date_from_field(issue,'fields.created'),
