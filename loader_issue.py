@@ -8,6 +8,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO,
                     filename='writing_issue.log')
 
+
 def get_or_create(model, name):
     """Load new value if it already exists only return object"""
     instance = db_session.query(model).filter(model.name == name).first()

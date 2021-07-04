@@ -8,4 +8,4 @@ engine = create_engine(settings.DBMS_LINK)
 db_session = scoped_session(sessionmaker(bind=engine))
 
 Base = declarative_base()
-Base.query = db_session.query_property
+Base.query = db_session.query_property()

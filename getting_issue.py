@@ -16,15 +16,19 @@ FIELDS = 'summary,issuetype,status,priority,resolution,description,\
 
 
 def demoji(text):
-	emoji_pattern = re.compile("["
-		u"\U0001F600-\U0001F64F"  # emoticons
+        """Сlearing strings from characters unsupported by the database"""
+	emoji_pattern = re.compile(
+        "["
+        u"\U0001F600-\U0001F64F"  # emoticons
         u"\U0001F300-\U0001F5FF"  # symbols & pictographs
         u"\U0001F680-\U0001F6FF"  # transport & map symbols
         u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
         u"\U00002702-\U000027B0"
         u"\U000024C2-\U0001F251"
         u"\U00010000-\U0010ffff"
-	                           "]+", flags=re.UNICODE)
+	    "]+", 
+        flags=re.UNICODE
+        )
 	return(emoji_pattern.sub(r'', text))
 
 
@@ -51,6 +55,7 @@ def get_date_from_field(issue, attributes):
 
 
 def limit_description_size(issue):
+    """Limits the number of characters in the description field"""
     description = issue.fields.description
     if description == None:
         return 'None'
