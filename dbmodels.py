@@ -108,10 +108,10 @@ class IssueLink(Base):
     id = Column(Integer, primary_key=True)
 
     child_issue_id = Column(Integer, ForeignKey('issue.id'), nullable=False, index=True)
-    child_issue = relationship('Issue', backref='child_issue_links', lazy=True)
+    child_issue = relationship('Issue',foreign_keys=[child_issue_id], backref='child_issue_links', lazy=True)
 
     parent_issue_id = Column(Integer, ForeignKey('issue.id'), nullable=False, index=True)
-    parent_issue = relationship('Issue', backref='parent_issue_links', lazy=True)
+    parent_issue = relationship('Issue',foreign_keys=[parent_issue_id], backref='parent_issue_links', lazy=True)
 
     type_id = Column(Integer, ForeignKey('link_type.id'), nullable=False)
     type = relationship('LinkType', backref='issue_links')
