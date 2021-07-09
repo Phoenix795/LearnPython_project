@@ -6,77 +6,74 @@ from datetime import datetime, timedelta
 
 def count_issues_in_status():
     """Counts the number of issues in various statuses"""
-    query = db_session.query(
+    status_list = db_session.query(
         Status.name, func.count(Issue.id)
     ).join(
         Issue.status
-    ).group_by(Status.name).order_by(func.count(Issue.id).desc())
-    
-    status_list = [[status_name, issue_quantity] for status_name, issue_quantity in query]
+    ).group_by(Status.name).order_by(func.count(Issue.id).desc()).all()
+
     return status_list
 
 
 def count_issues_in_resolution():
     """Counts the number of issues in various resolutions"""
-    query = db_session.query(
+    resolutions_list = db_session.query(
         Resolution.name, func.count(Issue.id)
     ).join(
         Issue.resolution
     ).group_by(
         Resolution.name
-    ).order_by(func.count(Issue.id).desc())
-    resolutions_list = [[resolution_name, issue_quantity] for resolution_name, issue_quantity in query]
+    ).order_by(func.count(Issue.id).desc()).all()
+
     return resolutions_list
 
 
 def most_voted_issues(issue_type, num_rows=5):
     """Most requested unresolved issues"""
-    query = db_session.query(
+    votes_list = db_session.query(
         Issue.key, Status.name, Issue.votes_quantity
     ).join(
         Issue.resolution, Issue.status, Issue.type
     ).filter(
-        Resolution.name == 'None', Type.name == issue_type
-    ).order_by(Issue.votes_quantity.desc()).limit(num_rows)
-    votes_list = [[issue_key, status_name, issue_votes] for issue_key, status_name, issue_votes in query]
+        Resolution.name == None, Type.name == issue_type
+    ).order_by(Issue.votes_quantity.desc()).limit(num_rows).all()
+
     return votes_list
 
 
 def most_watched_issues(issue_type, num_rows=5):
     """Most tracked unresolved issues"""
-    query = db_session.query(
+    watchers_list = db_session.query(
         Issue.key, Status.name, Issue.watchers_quantity
     ).join(
         Issue.resolution, Issue.status, Issue.type
     ).filter(
-        Resolution.name == 'None', Type.name == issue_type
-    ).order_by(Issue.watchers_quantity.desc()).limit(num_rows)
+        Resolution.name == None, Type.name == issue_type
+    ).order_by(Issue.watchers_quantity.desc()).limit(num_rows).all()
     
-    watchers_list = [[issue_key, status_name, issue_watchers] for issue_key, status_name, issue_watchers in query]
     return watchers_list
 
 
 def number_of_issues_with_workarounds():
     """Counts the number of unresolved issues with workarounds"""
-    query = db_session.query(
+    workaround_list = db_session.query(
         Type.name, Status.name, func.count(Issue.id)
     ).join(
         Issue.type, Issue.status, Issue.resolution
     ).filter( 
-        Resolution.name == 'None', 
-        or_(
-            Issue.description.like('%Workaround%'), Issue.description.like('%workaround%')
-        )
+        Resolution.name == None, 
+        Issue.description.ilike('%workaround%')
     ).group_by(
         Type.name, Status.name
-    ).order_by(Type.name, func.count(Issue.id).desc())
-    workaround_list = [[type_name, status_name, issue_quantity] for type_name,status_name, issue_quantity in query]
+    ).order_by(Type.name, func.count(Issue.id).desc()).all()
+
     return workaround_list
+
 
 def potentially_abandoned_issues():
     """Counts the number of issues that most likely will not be fixed"""
     two_year_ago = datetime.today() - timedelta(days = 365*2)
-    query = db_session.query(
+    abandoned_issues = db_session.query(
         Type.name, Status.name, Priority.name, func.count(Issue.id)
     ).join(
         Issue.resolution, Issue.status, Issue.type, Issue.priority
@@ -84,31 +81,31 @@ def potentially_abandoned_issues():
         and_(
             
             Issue.resolved_date == None, 
-            Resolution.name.in_(['Won\'t Fix', 'None', 'Timed out', 'Obsolete']),
             Issue.created_date < two_year_ago,
             Issue.votes_quantity < 150,
             Issue.watchers_quantity < 150
         )
     ).group_by(
         Type.name, Status.name, Priority.name
-    ).order_by(func.count(Issue.id).desc(), Type.name)
-    abandoned_issues = [[type_name, status_name, priority_name, issue_quantity] for type_name, status_name, priority_name, issue_quantity in query]
+    ).order_by(func.count(Issue.id).desc(), Type.name).all()
+
     return abandoned_issues
 
 
 def distribution_of_issues_by_fixed_versions():
     """Counts the number of issues that are fixed in different versions"""
-    query = db_session.query(
+    resolved_issues = db_session.query(
         Issue.fixed_version, Type.name, func.count(Issue.id)
     ).join(
         Issue.type, Issue.resolution
     ).filter(
         and_(
+            Issue.resolved_date != None,
             Issue.fixed_version != None, 
             Resolution.name.in_(['Fixed', 'Done', 'Deployed']),
         )
     ).group_by(
         Issue.fixed_version, Type.name
-    ).order_by(Issue.fixed_version.desc(), func.count(Issue.id).desc())
-    resolved_issues = [[fixed_version, type_name, issue_quantity] for fixed_version, type_name, issue_quantity in query]
+    ).order_by(Issue.fixed_version.desc(), func.count(Issue.id).desc()).all()
+
     return resolved_issues

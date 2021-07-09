@@ -12,24 +12,21 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 jira = JIRA(server=settings.SERVER_NAME)
 
 FIELDS = 'summary,issuetype,status,priority,resolution,description,\
-        votes,created,updated,issuelinks,comment,fixVersions,versions'
+        votes,created,updated,issuelinks,comment,fixVersions,versions, resolutiondate'
 
 
 def demoji(text):
-        """Сlearing strings from characters unsupported by the database"""
-	emoji_pattern = re.compile(
-        "["
-        u"\U0001F600-\U0001F64F"  # emoticons
-        u"\U0001F300-\U0001F5FF"  # symbols & pictographs
-        u"\U0001F680-\U0001F6FF"  # transport & map symbols
-        u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
-        u"\U00002702-\U000027B0"
-        u"\U000024C2-\U0001F251"
-        u"\U00010000-\U0010ffff"
-	    "]+", 
-        flags=re.UNICODE
-        )
-	return(emoji_pattern.sub(r'', text))
+    """Clearing strings from characters unsupported by the database"""
+    emoji_pattern = re.compile("["
+                               u"\U0001F600-\U0001F64F"  # emoticons
+                               u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+                               u"\U0001F680-\U0001F6FF"  # transport & map symbols
+                               u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                               u"\U00002702-\U000027B0"
+                               u"\U000024C2-\U0001F251"
+                               u"\U00010000-\U0010ffff"
+                               "]+", flags=re.UNICODE)
+    return(emoji_pattern.sub(r'', text))
 
 
 def nested_gettatr(obj, attr, default=None):
@@ -39,30 +36,24 @@ def nested_gettatr(obj, attr, default=None):
         try:
             obj = getattr(obj, i)
         except AttributeError:
-            if default:
-                return default
-            else:
-                raise
+            return default
     return obj
 
 
 def get_date_from_field(issue, attributes):
     """Getting date data from issue if exist and return as a date object."""
-    value = nested_gettatr(issue, attributes, 'None')
-    if value == 'None':
-        return None
-    return datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f%z').date()
-
+    value = nested_gettatr(issue, attributes)
+    if value:
+        return datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f%z').date()
+    return None
 
 def limit_description_size(issue):
     """Limits the number of characters in the description field"""
     description = issue.fields.description
-    if description == None:
-        return 'None'
-    else:
+    if description != None:
         description = demoji(description)
-    if len(description) > 10000:
-        return description[1:10000]
+        if len(description) > 10000:
+            return description[0:10000]
     return description
 
 
@@ -74,8 +65,8 @@ def get_issue_data(issue):
         'type': issue.fields.issuetype.name,
         'summary': demoji(issue.fields.summary),
         'status': issue.fields.status.name,
-        'priority': nested_gettatr(issue, 'fields.priority.name','None'),
-        'resolution': nested_gettatr(issue, 'fields.resolution.name','None'),
+        'priority': nested_gettatr(issue, 'fields.priority.name'),
+        'resolution': nested_gettatr(issue, 'fields.resolution.name'),
         'description': limit_description_size(issue),
         'votes': issue.fields.votes.votes,
         'watchers': jira.watchers(issue).watchCount,
@@ -109,9 +100,11 @@ def get_issue_comments(issue):
 
 def get_issue_version(issue):
     """Getting all versions from issue and return max value."""
-    affects_versions = [getattr(fversion,'name','None') for fversion in nested_gettatr(issue, 'fields.fixVersions', 'None')]
-    fixed_versions = [getattr(aversion,'name','None') for aversion in nested_gettatr(issue, 'fields.versions', 'None')]
-    return {'fixed' : max(fixed_versions, default='None'), 'affected' : max(affects_versions, default='None')}
+    affects_versions = [getattr(aversion,'name') for aversion in nested_gettatr(issue, 'fields.fixVersions', '')]
+    fixed_versions = [getattr(fversion,'name') for fversion in nested_gettatr(issue, 'fields.versions','')]
+    affects_versions = filter(None, affects_versions)
+    fixed_versions = filter(None, fixed_versions)
+    return {'fixed' : max(fixed_versions, default=None), 'affected' : max(affects_versions, default=None)}
 
 
 def get_issues_by_filter(jql):
