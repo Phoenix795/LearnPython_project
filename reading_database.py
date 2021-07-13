@@ -4,23 +4,29 @@ from sqlalchemy import select, and_, or_
 from sqlalchemy.sql import func
 from datetime import datetime, timedelta
 
-def count_issues_in_status():
+def count_issues_in_status(type):
     """Counts the number of issues in various statuses"""
     status_list = db_session.query(
         Status.name, func.count(Issue.id)
+    ).filter(
+        Type.name == type
     ).join(
-        Issue.status
-    ).group_by(Status.name).order_by(func.count(Issue.id).desc()).all()
+        Issue.status, Issue.type
+    ).group_by(
+        Status.name
+    ).order_by(func.count(Issue.id).desc()).all()
 
     return status_list
 
 
-def count_issues_in_resolution():
+def count_issues_in_resolution(type):
     """Counts the number of issues in various resolutions"""
     resolutions_list = db_session.query(
         Resolution.name, func.count(Issue.id)
+    ).filter(
+        Type.name == type
     ).join(
-        Issue.resolution
+        Issue.resolution, Issue.type
     ).group_by(
         Resolution.name
     ).order_by(func.count(Issue.id).desc()).all()
@@ -31,7 +37,7 @@ def count_issues_in_resolution():
 def most_voted_issues(issue_type, num_rows=5):
     """Most requested unresolved issues"""
     votes_list = db_session.query(
-        Issue.key, Status.name, Issue.votes_quantity
+        Issue.key, Issue.summary, Status.name, Issue.created_date, Issue.votes_quantity
     ).join(
         Issue.resolution, Issue.status, Issue.type
     ).filter(
@@ -44,7 +50,7 @@ def most_voted_issues(issue_type, num_rows=5):
 def most_watched_issues(issue_type, num_rows=5):
     """Most tracked unresolved issues"""
     watchers_list = db_session.query(
-        Issue.key, Status.name, Issue.watchers_quantity
+        Issue.key, Issue.summary, Status.name, Issue.created_date, Issue.watchers_quantity
     ).join(
         Issue.resolution, Issue.status, Issue.type
     ).filter(
@@ -95,17 +101,11 @@ def potentially_abandoned_issues():
 def distribution_of_issues_by_fixed_versions():
     """Counts the number of issues that are fixed in different versions"""
     resolved_issues = db_session.query(
-        Issue.fixed_version, Type.name, func.count(Issue.id)
-    ).join(
-        Issue.type, Issue.resolution
+        Issue.fixed_version, func.count(Issue.id)
     ).filter(
-        and_(
-            Issue.resolved_date != None,
-            Issue.fixed_version != None, 
-            Resolution.name.in_(['Fixed', 'Done', 'Deployed']),
-        )
+        Issue.fixed_version != None, 
     ).group_by(
-        Issue.fixed_version, Type.name
+        Issue.fixed_version
     ).order_by(Issue.fixed_version.desc(), func.count(Issue.id).desc()).all()
 
     return resolved_issues

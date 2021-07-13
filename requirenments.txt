@@ -1,2 +1,4 @@
 jira==3.0.1
+matplotlib
 requests
+sqlalchemy
