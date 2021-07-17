@@ -5,3 +5,4 @@ settings.py
 .ipynb_checkpoints
 *.ipynb
 .DS_Store
+*.png

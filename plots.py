@@ -111,6 +111,25 @@ def create_completed_issue_destribution_bar():
     bar_diagram.figure.savefig(f'{PATH}/completed_issue_destribution')
 
 
+def create_statistics_of_days_resolution_bugs_bar():
+    """Creating a bar chart in png format with statistics on the number of days to resolve bugs by priority"""
+    colomns = ['Mean', 'Median']
+    
+    priorities_for_resolved_issues = pd.DataFrame(rd.priorities_for_resolved_bug(), columns =['Key', 'Priority', 'Created_date', 'Resolved date'])
+    priorities_for_resolved_issues['Delta'] = (priorities_for_resolved_issues['Resolved date'] - priorities_for_resolved_issues['Created_date']).dt.days
+    aggrigated_priority_resolved = priorities_for_resolved_issues.groupby('Priority').agg(['mean', 'median'])
+    aggrigated_priority_resolved.columns = colomns
+    aggrigated_priority_resolved[colomns] = aggrigated_priority_resolved[colomns].round(2)
+    bar_diagram = aggrigated_priority_resolved.plot(
+        kind='bar',
+        figsize=(10, 8)
+        )
+    plt.title("Mean and median for the number of days to resolve bugs", fontsize=20)
+    plt.xlabel('Priorities', fontsize=15)
+    plt.ylabel('Days', fontsize=15)
+    bar_diagram.figure.savefig(f'{PATH}/dayes_to_resolve_bugs')
+
+
 if __name__ == "__main__":
     functions_to_call = [
         create_most_voted_suggestions_table,
@@ -119,7 +138,8 @@ if __name__ == "__main__":
         create_most_watched_bugs_table,
         create_suggestion_in_status_pie,
         create_bug_in_status_pie,
-        create_completed_issue_destribution_bar
+        create_completed_issue_destribution_bar,
+        create_statistics_of_days_resolution_bugs_bar
         ]
 
     os.makedirs(PATH,exist_ok=True)

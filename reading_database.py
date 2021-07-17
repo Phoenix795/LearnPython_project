@@ -109,3 +109,16 @@ def distribution_of_issues_by_fixed_versions():
     ).order_by(Issue.fixed_version.desc(), func.count(Issue.id).desc()).all()
 
     return resolved_issues
+
+
+def priorities_for_resolved_bug():
+    resolved_issues = db_session.query(
+        Issue.key, Priority.name, Issue.created_date, Issue.resolved_date
+    ).join(
+        Issue.priority, Issue.type
+    ).filter(
+        Issue.resolved_date != None,
+        Priority.name != None,
+        Type.name == 'Bug'
+    ).all()
+    return resolved_issues
